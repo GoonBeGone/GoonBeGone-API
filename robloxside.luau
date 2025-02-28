@@ -8,8 +8,8 @@ else
 	warn("Warning: Could not get Game.PlaceId even after waiting. Game ID will be set to '0'.")
 end
 
-local WORKER_API_URL = "urworkerurlifyourdoingitonurown"
-local API_KEY = "ask-dedcritical-on-discord-for-api-key"
+local WORKER_API_URL = ""
+local API_KEY = "dm-dedcritical-4-api-access"
 
 -- Normalize asset IDs
 local function normalizeAssetId(assetId)
@@ -143,7 +143,25 @@ local function checkPlayerItems(player)
 		elseif clothing:IsA("ShirtGraphic") then
 			assetId = clothing.Graphic
 			print("Raw Graphic:", assetId)
-		elseif clothing:IsA("Accessory") or clothing:IsA("Hat") or clothing:IsA("Gear") then
+		elseif clothing:IsA("Accessory") then
+			local handle = clothing:FindFirstChild("Handle")
+			if handle then
+				local mesh = handle:FindFirstChildOfClass("SpecialMesh")
+				if mesh then
+					assetId = mesh.MeshId
+					print("Raw MeshId (SpecialMesh):", assetId, "AccessoryType:", clothing.AccessoryType.Name)
+				else
+					local meshPart = handle:FindFirstChildOfClass("MeshPart")
+					if meshPart then
+						assetId = meshPart.MeshId
+						print("Raw MeshId (MeshPart):", assetId, "AccessoryType:", clothing.AccessoryType.Name)
+					end
+				end
+				if clothing.AccessoryType == Enum.AccessoryType.Front then
+					print("Detected Front Accessory with ID:", assetId)
+				end
+			end
+		elseif clothing:IsA("Hat") or clothing:IsA("Gear") then
 			local handle = clothing:FindFirstChild("Handle")
 			if handle then
 				local mesh = handle:FindFirstChildOfClass("SpecialMesh")
@@ -171,30 +189,57 @@ local function checkPlayerItems(player)
 	local appearanceSuccess, appearanceInfo = pcall(function()
 		return Players:GetHumanoidDescriptionFromUserId(userId)
 	end)
-	if appearanceSuccess and appearanceInfo then
-		if appearanceInfo.GraphicTShirt and appearanceInfo.GraphicTShirt ~= 0 then
-			local tshirtId = normalizeAssetId(appearanceInfo.GraphicTShirt)
-			if tshirtId then
-				table.insert(wearingItems, tshirtId)
+	if appearanceSuccess then
+		if appearanceInfo then
+			if appearanceInfo.GraphicTShirt and appearanceInfo.GraphicTShirt ~= 0 then
+				local tshirtId = normalizeAssetId(appearanceInfo.GraphicTShirt)
+				if tshirtId then
+					table.insert(wearingItems, tshirtId)
+				end
 			end
-		end
-		-- Fallback for pants ID
-		if appearanceInfo.Pants and appearanceInfo.Pants ~= 0 then
-			local pantsId = normalizeAssetId(appearanceInfo.Pants)
-			if pantsId then
-				local found = false
-				for _, item in ipairs(wearingItems) do
-					if item == pantsId then
-						found = true
-						break
+			if appearanceInfo.Pants and appearanceInfo.Pants ~= 0 then
+				local pantsId = normalizeAssetId(appearanceInfo.Pants)
+				if pantsId then
+					local found = false
+					for _, item in ipairs(wearingItems) do
+						if item == pantsId then
+							found = true
+							break
+						end
+					end
+					if not found then
+						print("Added pants ID from HumanoidDescription:", pantsId)
+						table.insert(wearingItems, pantsId)
 					end
 				end
-				if not found then
-					print("Added pants ID from HumanoidDescription:", pantsId)
-					table.insert(wearingItems, pantsId)
+			end
+			if appearanceInfo.FrontAccessory and appearanceInfo.FrontAccessory ~= "" then
+				local frontIds = {}
+				for id in string.gmatch(appearanceInfo.FrontAccessory, "(%d+)") do
+					local normalizedId = normalizeAssetId(id)
+					if normalizedId then
+						table.insert(frontIds, normalizedId)
+					end
+				end
+				for _, frontId in ipairs(frontIds) do
+					local found = false
+					for _, item in ipairs(wearingItems) do
+						if item == frontId then
+							found = true
+							break
+						end
+					end
+					if not found then
+						print("Added Front Accessory ID from HumanoidDescription:", frontId)
+						table.insert(wearingItems, frontId)
+					end
 				end
 			end
+		else
+			print("HumanoidDescription returned nil for user " .. tostring(userId))
 		end
+	else
+		warn("Failed to fetch HumanoidDescription for user " .. tostring(userId) .. ": " .. tostring(appearanceInfo))
 	end
 
 	local data = {
