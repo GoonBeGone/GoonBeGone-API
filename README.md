@@ -13,5 +13,6 @@ create new kv keys so the web ui api key manager works
 go to my scraper + reviewer repository if you want to use your own scraped items list aswell
 
 
-* WARNING *
+* WARNING 
+
 This repository will be much less maintained than the private version, feel free to make a issue telling me to update it if there are bugs / major issues.
