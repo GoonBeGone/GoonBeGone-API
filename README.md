@@ -1,4 +1,4 @@
--- setup
+setup
 
 sign up / login to cloudflare workers
 _
