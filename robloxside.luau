@@ -8,7 +8,7 @@ else
 	warn("Warning: Could not get Game.PlaceId even after waiting. Game ID will be set to '0'.")
 end
 
-local WORKER_API_URL = "https://aged-frog-fcdf.58ktij639.workers.dev"
+local WORKER_API_URL = "urworkerurlifyourdoingitonurown"
 local API_KEY = "ask-dedcritical-on-discord-for-api-key"
 
 -- Normalize asset IDs
