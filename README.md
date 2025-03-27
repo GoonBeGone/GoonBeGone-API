@@ -1,3 +1,16 @@
+UPDATE V2
+
+Detect Saved Avatars
+Silent Logging
+Kick On detect / Ban on detect
+Dont respect global bans ( doesnt check if banned globally )
+
+
+this was a ai slop project so feel free to make it better
+
+
+
+
 setup
 
 sign up / login to cloudflare workers
