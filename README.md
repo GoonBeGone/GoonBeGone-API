@@ -1,8 +1,11 @@
 UPDATE V2
 
 Detect Saved Avatars
+
 Silent Logging
+
 Kick On detect / Ban on detect
+
 Dont respect global bans ( doesnt check if banned globally )
 
 
